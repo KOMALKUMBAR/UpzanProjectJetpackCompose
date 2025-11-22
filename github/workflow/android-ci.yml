@@ -1,0 +1,41 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]   # change if your branches are different
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Get your project code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2) Install Java (for Gradle)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      # 3) Make gradlew runnable
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # 4) Build Debug APK (Jetpack Compose + normal Android)
+      - name: Build Debug APK
+        run: ./gradlew clean assembleDebug
+
+      # 5) Run unit tests
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      # 6) Run Android Lint checks
+      - name: Run Lint
+        run: ./gradlew lintDebug
